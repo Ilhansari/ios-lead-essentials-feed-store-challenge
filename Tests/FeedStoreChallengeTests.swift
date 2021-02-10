@@ -7,24 +7,30 @@ import FeedStoreChallenge
 
 
 class InMemoryFeedStore: FeedStore {
-	let feed: [LocalFeedImage]
-	let timestamp: Date
 	
-	init(feed: [LocalFeedImage], timestamp: Date) {
-		self.feed = feed
-		self.timestamp = timestamp
+	private struct InMemoryFeedModel {
+		let feed: [LocalFeedImage]
+		let timestamp: Date
 	}
+	
+	private var storeFeedModel: InMemoryFeedModel?
+	
+	init() { }
 	
 	func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 		
 	}
 	
 	func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-		
+		storeFeedModel = InMemoryFeedModel(feed: feed, timestamp: timestamp)
+		completion(nil)
 	}
 	
 	func retrieve(completion: @escaping RetrievalCompletion) {
-		completion(.empty)
+		guard let model = storeFeedModel else {
+			return completion(.empty)
+		}
+		completion(.found(feed: model.feed, timestamp: model.timestamp))
 	}
 	
 }
@@ -43,9 +49,9 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	}
 	
 	func test_retrieve_deliversFoundValuesOnNonEmptyCache() {
-		//		let sut = makeSUT()
-		//
-		//		assertThatRetrieveDeliversFoundValuesOnNonEmptyCache(on: sut)
+				let sut = makeSUT()
+
+				assertThatRetrieveDeliversFoundValuesOnNonEmptyCache(on: sut)
 	}
 	
 	func test_retrieve_hasNoSideEffectsOnNonEmptyCache() {
@@ -105,7 +111,7 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	// - MARK: Helpers
 	
 	private func makeSUT() -> FeedStore {
-		let sut = InMemoryFeedStore(feed: uniqueImageFeed(), timestamp: Date())
+		let sut = InMemoryFeedStore()
 		return sut
 	}
 	

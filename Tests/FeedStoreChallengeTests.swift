@@ -5,36 +5,6 @@
 import XCTest
 import FeedStoreChallenge
 
-
-class InMemoryFeedStore: FeedStore {
-	
-	private struct InMemoryFeedModel {
-		let feed: [LocalFeedImage]
-		let timestamp: Date
-	}
-	
-	private var storeFeedModel: InMemoryFeedModel?
-	
-	init() { }
-	
-	func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-		storeFeedModel = nil
-		completion(nil)
-	}
-	
-	func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-		storeFeedModel = InMemoryFeedModel(feed: feed, timestamp: timestamp)
-		completion(nil)
-	}
-	
-	func retrieve(completion: @escaping RetrievalCompletion) {
-		guard let model = storeFeedModel else {
-			return completion(.empty)
-		}
-		completion(.found(feed: model.feed, timestamp: model.timestamp))
-	}
-	
-}
 class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 		
 	func test_retrieve_deliversEmptyOnEmptyCache() {
@@ -104,9 +74,9 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	}
 	
 	func test_storeSideEffects_runSerially() {
-		//		let sut = makeSUT()
-		//
-		//		assertThatSideEffectsRunSerially(on: sut)
+				let sut = makeSUT()
+		
+				assertThatSideEffectsRunSerially(on: sut)
 	}
 	
 	// - MARK: Helpers

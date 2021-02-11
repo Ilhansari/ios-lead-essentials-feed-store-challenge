@@ -94,7 +94,7 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	// - MARK: Helpers
 	
 	private func makeSUT(storeURL: URL? = nil, file: StaticString = #filePath, line: UInt = #line) -> FeedStore {
-		let sut = InMemoryFeedStore(storeURL: storeURL ?? testSpecificStoreURL())
+		let sut = CodableFeedStore(storeURL: storeURL ?? testSpecificStoreURL())
 		trackForMemoryLeaks(sut, file: file, line: line)
 		return sut
 	}

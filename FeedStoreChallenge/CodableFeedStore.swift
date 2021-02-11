@@ -8,10 +8,10 @@
 
 import Foundation
 
-public class InMemoryFeedStore: FeedStore {
+public class CodableFeedStore: FeedStore {
 	
-	private struct InMemoryFeedModel: Codable {
-		let feed: [CodableMemoryImage]
+	private struct CodableFeed: Codable {
+		let feed: [CodableImage]
 		let timestamp: Date
 		
 		var localFeed: [LocalFeedImage] {
@@ -19,7 +19,7 @@ public class InMemoryFeedStore: FeedStore {
 		}
 	}
 		
-	private struct CodableMemoryImage: Codable {
+	private struct CodableImage: Codable {
 		private let id: UUID
 		private let description: String?
 		private let location: String?
@@ -37,8 +37,8 @@ public class InMemoryFeedStore: FeedStore {
 		}
 	}
 	
-	private let queue = DispatchQueue(label: "\(InMemoryFeedStore.self)Queue", qos: .userInitiated, attributes: .concurrent)
-	let storeURL: URL
+	private let queue = DispatchQueue(label: "\(CodableFeedStore.self)Queue", qos: .userInitiated, attributes: .concurrent)
+	private let storeURL: URL
 	
 	public init(storeURL: URL) {
 		self.storeURL = storeURL
@@ -65,7 +65,7 @@ public class InMemoryFeedStore: FeedStore {
 		queue.async(flags: .barrier) {
 			do {
 				let encoder = JSONEncoder()
-				let cache = InMemoryFeedModel(feed: feed.map(CodableMemoryImage.init), timestamp: timestamp)
+				let cache = CodableFeed(feed: feed.map(CodableImage.init), timestamp: timestamp)
 				let encoded = try encoder.encode(cache)
 				try encoded.write(to: storeURL)
 				completion(nil)
@@ -83,7 +83,7 @@ public class InMemoryFeedStore: FeedStore {
 			}
 			do {
 				let decoder = JSONDecoder()
-				let cache = try decoder.decode(InMemoryFeedModel.self, from: data)
+				let cache = try decoder.decode(CodableFeed.self, from: data)
 				completion(.found(feed: cache.localFeed , timestamp: cache.timestamp))
 			} catch {
 				completion(.failure(error))

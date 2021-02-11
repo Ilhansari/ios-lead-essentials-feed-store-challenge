@@ -10,30 +10,85 @@ import Foundation
 
 public class InMemoryFeedStore: FeedStore {
 	
-	private struct InMemoryFeedModel {
-		let feed: [LocalFeedImage]
+	private struct InMemoryFeedModel: Codable {
+		let feed: [CodableMemoryImage]
 		let timestamp: Date
+		
+		var localFeed: [LocalFeedImage] {
+			return feed.map { $0.local }
+		}
+	}
+		
+	private struct CodableMemoryImage: Codable {
+		private let id: UUID
+		private let description: String?
+		private let location: String?
+		private let url: URL
+		
+		init(_ image: LocalFeedImage) {
+			self.id = image.id
+			self.description = image.description
+			self.location = image.location
+			self.url = image.url
+		}
+		
+		var local: LocalFeedImage {
+			return LocalFeedImage(id: id, description: description, location: location, url: url)
+		}
 	}
 	
-	private var storeFeedModel: InMemoryFeedModel?
+	private let queue = DispatchQueue(label: "\(InMemoryFeedStore.self)Queue", qos: .userInitiated, attributes: .concurrent)
+	let storeURL: URL
 	
-	public init() { }
+	public init(storeURL: URL) {
+		self.storeURL = storeURL
+	}
 	
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-		storeFeedModel = nil
-		completion(nil)
+		let storeURL = self.storeURL
+		queue.async(flags: .barrier) {
+			guard FileManager.default.fileExists(atPath: storeURL.path) else {
+				return completion(nil)
+			}
+			do {
+				try FileManager.default.removeItem(at: storeURL)
+				completion(nil)
+			} catch {
+				completion(error)
+			}
+		}
+
 	}
 	
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-		storeFeedModel = InMemoryFeedModel(feed: feed, timestamp: timestamp)
-		completion(nil)
+		let storeURL = self.storeURL
+		queue.async(flags: .barrier) {
+			do {
+				let encoder = JSONEncoder()
+				let cache = InMemoryFeedModel(feed: feed.map(CodableMemoryImage.init), timestamp: timestamp)
+				let encoded = try encoder.encode(cache)
+				try encoded.write(to: storeURL)
+				completion(nil)
+			} catch {
+				completion(error)
+			}
+		}
 	}
 	
 	public func retrieve(completion: @escaping RetrievalCompletion) {
-		guard let model = storeFeedModel else {
-			return completion(.empty)
+		let storeURL = self.storeURL
+		queue.async {
+			guard let data = try? Data(contentsOf: storeURL) else {
+				return completion(.empty)
+			}
+			do {
+				let decoder = JSONDecoder()
+				let cache = try decoder.decode(InMemoryFeedModel.self, from: data)
+				completion(.found(feed: cache.localFeed , timestamp: cache.timestamp))
+			} catch {
+				completion(.failure(error))
+			}
 		}
-		completion(.found(feed: model.feed, timestamp: model.timestamp))
 	}
 	
 }

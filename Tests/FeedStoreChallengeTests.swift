@@ -7,6 +7,17 @@ import FeedStoreChallenge
 
 class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 		
+	override func setUp() {
+		super.setUp()
+		
+		setupEmptyStoreState()
+	}
+	
+	override func tearDown() {
+		super.tearDown()
+		
+		undoStoreSideEffects()
+	}
 	func test_retrieve_deliversEmptyOnEmptyCache() {
 				let sut = makeSUT()
 		
@@ -82,9 +93,29 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	// - MARK: Helpers
 	
 	private func makeSUT(storeURL: URL? = nil, file: StaticString = #filePath, line: UInt = #line) -> FeedStore {
-		let sut = InMemoryFeedStore()
+		let sut = InMemoryFeedStore(storeURL: storeURL ?? testSpecificStoreURL())
 		trackForMemoryLeaks(sut, file: file, line: line)
 		return sut
+	}
+	
+	private func testSpecificStoreURL() -> URL {
+		return cachesDirectory().appendingPathComponent("\(type(of: self)).store")
+	}
+	
+	private func cachesDirectory() -> URL {
+		return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+	}
+	
+	func deleteStoreArtifacts() {
+		try? FileManager.default.removeItem(at: testSpecificStoreURL())
+	}
+	
+	private func setupEmptyStoreState() {
+		deleteStoreArtifacts()
+	}
+	
+	private func undoStoreSideEffects() {
+		deleteStoreArtifacts()
 	}
 	
 }
@@ -97,21 +128,27 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 //
 //  ***********************
 
-//extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
+extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
 
-//	func test_retrieve_deliversFailureOnRetrievalError() {
-//		let sut = makeSUT()
-//
-//		assertThatRetrieveDeliversFailureOnRetrievalError(on: sut)
-//	}
-//
+	func test_retrieve_deliversFailureOnRetrievalError() {
+		let storeURL = testSpecificStoreURL()
+		let sut = makeSUT(storeURL: storeURL)
+
+		try! "invalid data".write(to: storeURL, atomically: false, encoding: .utf8)
+		
+		assertThatRetrieveDeliversFailureOnRetrievalError(on: sut)
+	}
+
 //	func test_retrieve_hasNoSideEffectsOnFailure() {
-////		let sut = makeSUT()
-////
-////		assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
+//		let storeURL = testSpecificStoreURL()
+//		let sut = makeSUT(storeURL: storeURL)
+//
+//		try! "invalid data".write(to: storeURL, atomically: false, encoding: .utf8)
+//
+//		assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
 //	}
 
-//}
+}
 
 //extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
 //

@@ -81,8 +81,9 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	
 	// - MARK: Helpers
 	
-	private func makeSUT() -> FeedStore {
+	private func makeSUT(storeURL: URL? = nil, file: StaticString = #filePath, line: UInt = #line) -> FeedStore {
 		let sut = InMemoryFeedStore()
+		trackForMemoryLeaks(sut, file: file, line: line)
 		return sut
 	}
 	
@@ -96,7 +97,7 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 //
 //  ***********************
 
-extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
+//extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
 
 //	func test_retrieve_deliversFailureOnRetrievalError() {
 //		let sut = makeSUT()
@@ -110,7 +111,7 @@ extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
 ////		assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
 //	}
 
-}
+//}
 
 //extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
 //

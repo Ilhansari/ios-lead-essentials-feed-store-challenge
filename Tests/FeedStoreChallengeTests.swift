@@ -96,12 +96,12 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 //
 //  ***********************
 
-//extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
-//
+extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
+
 //	func test_retrieve_deliversFailureOnRetrievalError() {
-////		let sut = makeSUT()
-////
-////		assertThatRetrieveDeliversFailureOnRetrievalError(on: sut)
+//		let sut = makeSUT()
+//
+//		assertThatRetrieveDeliversFailureOnRetrievalError(on: sut)
 //	}
 //
 //	func test_retrieve_hasNoSideEffectsOnFailure() {
@@ -109,8 +109,8 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 ////
 ////		assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
 //	}
-//
-//}
+
+}
 
 //extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
 //

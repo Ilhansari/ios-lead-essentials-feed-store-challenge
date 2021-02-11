@@ -99,18 +99,6 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 		return sut
 	}
 	
-	private func testSpecificStoreURL() -> URL {
-		return cachesDirectory().appendingPathComponent("\(type(of: self)).store")
-	}
-	
-	private func cachesDirectory() -> URL {
-		return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
-	}
-	
-	func deleteStoreArtifacts() {
-		try? FileManager.default.removeItem(at: testSpecificStoreURL())
-	}
-	
 	private func setupEmptyStoreState() {
 		deleteStoreArtifacts()
 	}

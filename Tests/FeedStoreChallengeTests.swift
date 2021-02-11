@@ -120,14 +120,6 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	
 }
 
-//  ***********************
-//
-//  Uncomment the following tests if your implementation has failable operations.
-//
-//  Otherwise, delete the commented out code!
-//
-//  ***********************
-
 extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
 
 	func test_retrieve_deliversFailureOnRetrievalError() {
@@ -168,18 +160,20 @@ extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
 
 }
 
-//extension FeedStoreChallengeTests: FailableDeleteFeedStoreSpecs {
-//
-//	func test_delete_deliversErrorOnDeletionError() {
-////		let sut = makeSUT()
-////
-////		assertThatDeleteDeliversErrorOnDeletionError(on: sut)
-//	}
-//
-//	func test_delete_hasNoSideEffectsOnDeletionError() {
-////		let sut = makeSUT()
-////
-////		assertThatDeleteHasNoSideEffectsOnDeletionError(on: sut)
-//	}
-//
-//}
+extension FeedStoreChallengeTests: FailableDeleteFeedStoreSpecs {
+
+	func test_delete_deliversErrorOnDeletionError() {
+		let noPermissonURL = cachesDirectory()
+		let sut = makeSUT(storeURL: noPermissonURL)
+
+		assertThatDeleteDeliversErrorOnDeletionError(on: sut)
+	}
+
+	func test_delete_hasNoSideEffectsOnDeletionError() {
+		let noPermissonURL = cachesDirectory()
+		let sut = makeSUT(storeURL: noPermissonURL)
+
+		assertThatDeleteHasNoSideEffectsOnDeletionError(on: sut)
+	}
+
+}

@@ -18,6 +18,7 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 		
 		undoStoreSideEffects()
 	}
+	
 	func test_retrieve_deliversEmptyOnEmptyCache() {
 				let sut = makeSUT()
 		
